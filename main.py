@@ -5,6 +5,8 @@ import asyncio
 import logging
 import datetime
 import pytz
+import functools
+import time
 import json
 import os
 
@@ -35,7 +37,21 @@ async def on_ready():
     print(f'{bot.user} has connected to Discord!')
     print(f'Timezone is set to: {timezone}.')
 
+def cooldown(func):
+    last_called = 0
+    @functools.wraps(func)
+    async def wrapper(ctx, *args, **kwargs):
+        nonlocal last_called
+        if time.time() - last_called < 30:
+            await ctx.send("You're too fast homie, wait 30 seconds before using !rizz again.")
+            logging.info(f'{ctx.author.name} tried to use !rizz too quickly')
+            return
+        last_called = time.time() # Update the last called time to now
+        return await func(ctx, *args, **kwargs)
+    return wrapper
+
 @bot.command(name='rizz')
+@cooldown
 async def rizz(ctx):
     logging.info(f'!rizz command invoked by {ctx.author.name} in {ctx.channel.name} at {ctx.message.created_at.astimezone(timezone).strftime("%Y-%m-%d %H:%M:%S %Z")}')
     
