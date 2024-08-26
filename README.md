@@ -3,6 +3,8 @@
 
 Rizz Meter is a fun Discord bot that lets you check your `!rizz` and once it gets to a certain number, it will grant you the ability to `!timeout` other user to further flex your rizz.
 
+![He has beeg rizz](assets/demo.jpg)
+
 ## Getting Started
 
 You will need to both make a bot account on Discord and self-host the bot to have the bot running.
