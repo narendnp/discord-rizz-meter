@@ -35,7 +35,10 @@ timeout_users = {}
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
-    print(f'Timezone is set to: {timezone}.')
+    print(f'Running on server: {bot.get_guild(GUILD_ID).name}')
+    print(f'Timezone is set to: {timezone}')
+    print(f'Rizz value treshold: {treshold}%')
+    print(f'Bot is ready and running!')
 
 def cooldown(func):
     last_called = 0
@@ -43,7 +46,7 @@ def cooldown(func):
     async def wrapper(ctx, *args, **kwargs):
         nonlocal last_called
         if time.time() - last_called < 30:
-            await ctx.send("You're too fast homie, wait 30 seconds before using !rizz again.")
+            await ctx.reply("You're too fast homie, wait 30 seconds before using !rizz again.")
             logging.info(f'{ctx.author.name} tried to use !rizz too quickly')
             return
         last_called = time.time() # Update the last called time to now
@@ -58,10 +61,8 @@ async def rizz(ctx):
     roll = random.randint(0, 100)
     logging.info(f'!rizz result: {roll}%')
     
-    reply = f'<@{ctx.author.id}> has {roll}% rizz.'
-    
     if roll >= (treshold):
-        await ctx.send(f'<@{ctx.author.id}> has overflowing {roll}% rizz! They now gain the ability to !timeout a user (for a limited time).')
+        await ctx.reply(f'<@{ctx.author.id}> has overflowing {roll}% rizz! They now gain the ability to !timeout a user (for a limited time).')
         logging.info(f'{ctx.author.name} got >{treshold}% rizz and can use !timeout')
         
         timeout_users[ctx.author.id] = True
@@ -76,7 +77,7 @@ async def rizz(ctx):
         except asyncio.TimeoutError:
             pass
     else:
-        await ctx.send(reply)
+        await ctx.reply(f'<@{ctx.author.id}> has {roll}% rizz.')
             
 
 @bot.command(name='timeout')
@@ -93,9 +94,8 @@ async def timeout(ctx, user: commands.UserConverter):
             # Grant the mentioned user the timeout role
             timeout_role = bot.get_guild(GUILD_ID).get_role(TIMEOUT_ROLE_ID)
             await mentioned_user.add_roles(timeout_role)
-            await ctx.send(f'<@!{ctx.author.id}> used !timeout on <@!{mentioned_user.id}>.')
+            await ctx.reply(f'<@!{ctx.author.id}> used !timeout on <@!{mentioned_user.id}>.')
             logging.info(f'{ctx.author.name} used !timeout on {mentioned_user.name}')
-
             # Remove the timeout role after 30 seconds
             await asyncio.sleep(30)
             await mentioned_user.remove_roles(timeout_role)
